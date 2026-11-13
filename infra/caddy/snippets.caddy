@@ -1,0 +1,36 @@
+(common_headers) {
+	encode zstd gzip
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+}
+
+# What a client site serves: its pages, its extranet and visitor accounts.
+(client_routes) {
+	@client path /mon-compte /mon-compte/* /assets/account.js /assets/account.css /extranet /extranet/* /assets/admin.js /assets/admin.css /assets/builder.js /assets/builder.css /assets/blocks.css /assets/public.css /assets/base.css /assets/template-preview.css /assets/icons/* /assets/site-construction.webp / /a-propos /blog /pages/* /articles/*
+	handle @client {
+		reverse_proxy app:8080
+	}
+	@old_admin path /admin /admin/*
+	handle @old_admin {
+		redir * /extranet 302
+	}
+	handle {
+		respond "Page introuvable" 404
+	}
+}
+
+# Extra sites get a certificate only once the application confirms that the
+# domain is connected to one of them.
+(on_demand_sites) {
+	https:// {
+		tls {
+			on_demand
+		}
+		import common_headers
+		import client_routes
+	}
+}

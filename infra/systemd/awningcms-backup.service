@@ -1,0 +1,10 @@
+# Copy to /etc/systemd/system after replacing @INSTALL_DIR@ (see docs/installation.md).
+[Unit]
+Description=Sauvegarde PostgreSQL AwningCMS
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash @INSTALL_DIR@/scripts/backup.sh
+UMask=0077

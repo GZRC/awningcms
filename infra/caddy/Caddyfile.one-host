@@ -1,0 +1,21 @@
+# One host for both the main site and its administration (/admin).
+{
+	on_demand_tls {
+		ask http://app:8080/internal/tls-allow
+	}
+}
+
+import snippets.caddy
+
+{$SITE_HOST} {
+	import common_headers
+	@private path /internal/*
+	handle @private {
+		respond "Page introuvable" 404
+	}
+	handle {
+		reverse_proxy app:8080
+	}
+}
+
+import on_demand_sites

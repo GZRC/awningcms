@@ -1,0 +1,50 @@
+# Disposable stack for scripts/test-local.sh: no Caddy, a throwaway database
+# in memory, published on the loopback only.
+name: awningcms-test
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: cms_test
+      POSTGRES_USER: cms_test
+      POSTGRES_PASSWORD: local-disposable-test-only
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cms_test -d cms_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+  app:
+    image: awningcms:test
+    environment:
+      PUBLIC_ORIGIN: http://localhost:18080
+      PRIMARY_SITE_ORIGIN: http://127.0.0.1:18080
+      PGHOST: postgres
+      PGDATABASE: cms_test
+      PGUSER: cms_test
+      PGPASSWORD_FILE: /run/secrets/test_db_password
+      SETUP_TOKEN_FILE: /run/secrets/test_setup_token
+      DOMAIN_CATALOG_FILE: /test/domain-catalog.json
+      VPS_PUBLIC_IPS: 192.0.2.10
+      OLLAMA_BASE_URL: http://127.0.0.1:9
+    volumes:
+      - ../tests/domain-catalog.json:/test/domain-catalog.json:ro
+    ports:
+      - "127.0.0.1:18080:8080"
+    secrets:
+      - test_db_password
+      - test_setup_token
+    depends_on:
+      postgres:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+secrets:
+  test_db_password:
+    file: ../private/test-db-password.secret
+  test_setup_token:
+    file: ../private/test-setup-token.secret

@@ -1,0 +1,10 @@
+.env
+*.secret
+private/
+/target/
+/.build/
+*.tar
+*.tar.gz
+__pycache__/
+.env.local
+infra/compose.override.yaml

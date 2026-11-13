@@ -1,0 +1,9 @@
+.git
+private
+target
+docs
+tests
+*.secret
+*.tar
+*.tar.gz
+.env

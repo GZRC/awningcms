@@ -1,0 +1,7 @@
+/* The HTML is the real public renderer. This stylesheet only makes its
+   authenticated embedded preview inert; it never changes published pages. */
+body.template-preview { min-height: 0; }
+.template-preview .skip-link { display: none; }
+.template-preview a { pointer-events: none; cursor: default; }
+.preview-header .site-header, .preview-footer .site-footer { width: 100%; }
+.preview-footer .site-footer { margin-top: 0; }
