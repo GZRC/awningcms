@@ -18,7 +18,10 @@ fi
 [[ $EUID -eq 0 ]] || fail "lancez ce script avec sudo : il protège les fichiers secrets."
 
 # Previous answers, used as defaults when the script runs again.
-previous() { [[ -f $settings ]] && sed -n "s/^$1=//p" "$settings" | tail -n 1 || true; }
+previous() {
+    [[ -f $settings ]] || return 0
+    sed -n "s/^$1=//p" "$settings" | tail -n 1
+}
 
 ask() {
     local question=$2 default=$3 value=${!1:-}
@@ -56,7 +59,9 @@ project=${project:-awningcms}
 [[ $http_port =~ ^[0-9]+$ && $https_port =~ ^[0-9]+$ ]] || fail "les ports doivent être des nombres."
 [[ $project =~ ^[a-z0-9][a-z0-9_-]*$ ]] || fail "nom de projet invalide : « $project »."
 
-origin() { [[ $https_port == 443 ]] && echo "https://$1" || echo "https://$1:$https_port"; }
+origin() {
+    if [[ $https_port == 443 ]]; then echo "https://$1"; else echo "https://$1:$https_port"; fi
+}
 caddyfile=Caddyfile
 [[ $admin_host == "$site_host" ]] && caddyfile=Caddyfile.one-host
 
